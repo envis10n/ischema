@@ -1,6 +1,6 @@
 {
   "name": "ischema-ts",
-  "version": "0.1.0-dev",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "author": "envis10n <envis10n@protonmail.com>",
   "scripts": {
