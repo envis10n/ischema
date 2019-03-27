@@ -11,8 +11,6 @@ const exists = _p(fs.exists);
 
 const ajv = new Ajv();
 
-const root: string = process.argv[2] || process.cwd();
-
 let config: IObject<any> = {};
 
 async function validate(schema: object): Promise<boolean> {
@@ -267,34 +265,49 @@ function readRoot(rootDir: string, list?: string[]): Promise<string[]> {
 }
 
 (async () => {
-    const confpath = path.join(root, "ischema.json");
-    if (await exists(confpath)) {
-        // Load config.
-        config = JSON.parse((await readFile(confpath)).toString());
+    const init = process.argv.findIndex((e) => e === "--init");
+    let root: string = process.argv[2] || process.cwd();
+    if (init !== -1) {
+        if (init === 2) {
+            root = process.argv[3] || process.cwd();
+        }
+        const confpath = path.join(root, "ischema.json");
+        await writeFile(confpath, JSON.stringify({
+            options: {
+                rootDir: ".",
+                outDir: "./schemas",
+            },
+        }, null, "\t"));
     } else {
-        config.options = {};
-        config.options.rootDir = ".";
-        config.options.outDir = ".";
-    }
-    if (!path.isAbsolute(config.options.rootDir)) {
-        config.options.rootDir = path.join(root, config.options.rootDir);
-    }
-    if (!path.isAbsolute(config.options.outDir)) {
-        config.options.outDir = path.join(root, config.options.outDir);
-    }
-    if (!(await exists(config.options.outDir))) {
-        fs.mkdirSync(config.options.outDir);
-    }
-    const files = await readRoot(config.options.rootDir);
-    for (const file of files) {
-        const res = await parseFile(file);
-        for (const inter of res) {
-            const schema = await toSchema(inter);
-            if (validate(schema)) {
-                await writeFile(path.join(config.options.outDir, schema.title + ".json"),
-                JSON.stringify(schema, null, "\t"));
-            } else {
-                throw new Error("Invalid schema: " + schema.title);
+        const confpath = path.join(root, "ischema.json");
+        if (await exists(confpath)) {
+            // Load config.
+            config = JSON.parse((await readFile(confpath)).toString());
+        } else {
+            config.options = {};
+            config.options.rootDir = ".";
+            config.options.outDir = ".";
+        }
+        if (!path.isAbsolute(config.options.rootDir)) {
+            config.options.rootDir = path.join(root, config.options.rootDir);
+        }
+        if (!path.isAbsolute(config.options.outDir)) {
+            config.options.outDir = path.join(root, config.options.outDir);
+        }
+        if (!(await exists(config.options.outDir))) {
+            fs.mkdirSync(config.options.outDir);
+        }
+        const files = await readRoot(config.options.rootDir);
+        for (const file of files) {
+            const res = await parseFile(file);
+            for (const inter of res) {
+                const schema = await toSchema(inter);
+                if (validate(schema)) {
+                    await writeFile(path.join(config.options.outDir, schema.title + ".json"),
+                    JSON.stringify(schema, null, "\t"));
+                } else {
+                    throw new Error("Invalid schema: " + schema.title);
+                }
             }
         }
     }
