@@ -22,6 +22,22 @@ async function validate(schema: object): Promise<boolean> {
     }
 }
 
+function isValidJSONType(data: string): boolean {
+    switch (data) {
+        case "string":
+        case "boolean":
+        case "number":
+        case "object":
+        case "array":
+        case "null":
+            return true;
+            break;
+        default:
+            return false;
+            break;
+    }
+}
+
 async function parseFile(file: string): Promise<IInterface[]> {
     let data = (await readFile(file)).toString();
     data = data.replace(/\t/g, " ").replace(/\r/g, "");
@@ -97,16 +113,18 @@ async function parseFile(file: string): Promise<IInterface[]> {
                     break;
                 case ParseState.IndexValue:
                     const value = w.substring(0, w.length - 1);
-                    if (iobjname === "") {
-                        inter.indices.push({
-                            key: temp[0],
-                            value,
-                        });
-                    } else if (tempobjs.length > 0) {
-                        tempobjs[tempobjs.length - 1].indices.push({
-                            key: temp[0],
-                            value,
-                        });
+                    if (isValidJSONType(value)) {
+                        if (iobjname === "") {
+                            inter.indices.push({
+                                key: temp[0],
+                                value,
+                            });
+                        } else if (tempobjs.length > 0) {
+                            tempobjs[tempobjs.length - 1].indices.push({
+                                key: temp[0],
+                                value,
+                            });
+                        }
                     }
                     temp = [];
                     state = ParseState.None;
@@ -114,10 +132,13 @@ async function parseFile(file: string): Promise<IInterface[]> {
                 case ParseState.FoundProp:
                     if (w !== "{" && w.endsWith(";")) {
                         // Regular prop
-                        if (iobjname === "") {
-                            inter.props[cname] = w.substring(0, w.length - 1);
-                        } else if (tempobjs.length > 0) {
-                            tempobjs[tempobjs.length - 1].props[cname] = w.substring(0, w.length - 1);
+                        const propType = w.substring(0, w.length - 1);
+                        if (isValidJSONType(propType)) {
+                            if (iobjname === "") {
+                                inter.props[cname] = propType;
+                            } else if (tempobjs.length > 0) {
+                                tempobjs[tempobjs.length - 1].props[cname] = propType;
+                            }
                         }
                         state = ParseState.None;
                     } else if (w === "{") {
