@@ -1,0 +1,22 @@
+{
+  "name": "ischema",
+  "version": "0.1.0-dev",
+  "main": "dist/index.js",
+  "author": "envis10n <envis10n@protonmail.com>",
+  "scripts": {
+    "test": "tsc && node .",
+    "build": "tsc"
+  },
+  "bin": {
+    "ischema": "./bin/ischema"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.4000"
+  },
+  "dependencies": {
+    "@types/node": "^11.11.8",
+    "ajv": "^6.10.0"
+  }
+}
