@@ -1,5 +1,5 @@
 {
-  "name": "ischema",
+  "name": "ischema-ts",
   "version": "0.1.0-dev",
   "main": "dist/index.js",
   "author": "envis10n <envis10n@protonmail.com>",
