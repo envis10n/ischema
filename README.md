@@ -3,7 +3,7 @@
 A TypeScript interface parser for generating JSON schemas.
 
 ## Usage
-Install for CLI: `yarn global add ischema` | `npm i ischema -g`
+Install for CLI: `yarn global add ischema-ts` | `npm i ischema-ts -g`
 Run: `ischema` for current directory, or `ischema path/to/directory/`
 
 Mark interfaces for transpilation by wrapping them with: `/* SCHEMA */` and `/* END SCHEMA */`.
